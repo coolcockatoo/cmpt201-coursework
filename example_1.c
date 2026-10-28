@@ -3,22 +3,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define ASSERT(expr)                                                           \
-  {                                                                            \
-    if (!(expr)) {                                                             \
-      fprintf(stderr, "Assertion failed: %s\n", #expr);                        \
-      exit(1);                                                                 \
-    }                                                                          \
+#define ASSERT(expr)                                                                               \
+  {                                                                                                \
+    if (!(expr)) {                                                                                 \
+      fprintf(stderr, "Assertion failed: %s\n", #expr);                                            \
+      exit(1);                                                                                     \
+    }                                                                                              \
   }
 
-#define TEST(expr)                                                             \
-  {                                                                            \
-    if (!(expr)) {                                                             \
-      fprintf(stderr, "Test failed: %s\n", #expr);                             \
-      exit(1);                                                                 \
-    } else {                                                                   \
-      printf("Test passed: %s\n", #expr);                                      \
-    }                                                                          \
+#define TEST(expr)                                                                                 \
+  {                                                                                                \
+    if (!(expr)) {                                                                                 \
+      fprintf(stderr, "Test failed: %s\n", #expr);                                                 \
+      exit(1);                                                                                     \
+    } else {                                                                                       \
+      printf("Test passed: %s\n", #expr);                                                          \
+    }                                                                                              \
   }
 
 typedef struct node {
@@ -30,26 +30,28 @@ node_t *head = NULL;
 
 void insert_sorted(uint64_t data) {
   node_t *new_node = malloc(sizeof(node_t));
+  ASSERT(new_node != NULL); // Ensure malloc succeeded
   new_node->data = data;
   new_node->next = NULL;
 
-  if (head == NULL) {
+  // Case 1: Insert at the beginning (if list is empty or data is smaller than head)
+  if (head == NULL || data < head->data) {
+    new_node->next = head;
     head = new_node;
-  } else {
-    node_t *curr = head;
-    node_t *prev = NULL;
-
-    bool inserted = false;
-    while (curr != NULL && !inserted) {
-      if (data < curr->data) {
-        prev->next = new_node;
-        new_node->next = curr;
-        inserted = true;
-      }
-      prev = curr;
-      curr = curr->next;
-    }
+    return;
   }
+
+  // Case 2: Insert in the middle or at the end
+  node_t *curr = head;
+  node_t *prev = NULL;
+
+  while (curr != NULL && data >= curr->data) {
+    prev = curr;
+    curr = curr->next;
+  }
+
+  prev->next = new_node;
+  new_node->next = curr;
 }
 
 int index_of(uint64_t data) {
